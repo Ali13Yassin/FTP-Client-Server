@@ -32,7 +32,7 @@ def window():
     centx = int((wind.winfo_screenwidth() - 800) / 2) #Gets coordinates of where to center the window on x-axis
     centy = int((wind.winfo_screenheight() - 500) / 2) #Gets coordinates of where to center the window on y-axis
     wind.geometry("800x500+{}+{}".format(centx, centy)) #Centers the window
-    wind.title("SMP project")
+    wind.title("The Ethel project")
     fnt = "Manrope" #To be able to change font through one change
     div = Frame(wind) #Funny name from html that's not gonna cause issues at all lolol
     div.pack() #The frame keeps the layout decent
@@ -49,7 +49,7 @@ def mainmenu():
     style = Style()
     style.configure("navbar.TFrame", background="#391D0D")
     style.configure("Custom2.TFrame", background="#6F3F29")
-    style.configure("Title.TLabel", background="#391D0D", foreground="white", font=(fnt, 15, "bold"))
+    style.configure("Title.TLabel", background="#391D0D", foreground="white", font=(fnt, 15, "bold"), padding=(5, 0))
     style.configure("navbutton.TLabel", background="#A5622F", foreground="white", font=(fnt, 12))  # Change the font of the text
     style.map("navbutton.TLabel",foreground=[('pressed', '#391D0D'), ('active', 'white')],background=[('pressed', '!disabled', '#FFE7D4'), ('active', '#E99A5D')])
     navbar = Frame(DivisionFrame, style="navbar.TFrame")
@@ -68,7 +68,55 @@ def mainmenu():
 #------------------------------------<Menus Start>-------------------------------------------------------
 def server_menu():
     clear() #Clears the previous menu
-    Button(main_frame, text="server menu test", command=placeholder, style="navbutton.TLabel").grid(row=0, column=4, padx=10, pady=10)
+    server_back = Frame(main_frame, style="Custom2.TFrame")
+    server_back.pack(fill='both', expand=True)
+    server_back.grid_columnconfigure(0, weight=1)
+    server_back.grid_columnconfigure(1, weight=1)
+    server_back.grid_rowconfigure(0, weight=1)
+
+    #Options frame
+    options_frame = Frame(server_back, style="Custom2.TFrame")
+    options_frame.grid(row=0, column=1, sticky='nsew')
+
+    #Connection frame
+    connection_frame = Frame(options_frame, style="navbar.TFrame")
+    connection_frame.pack(padx=10, pady=10)
+    style.configure("settings.TLabel", background="#391D0D", foreground="white", font=(fnt, 15))
+    Label(connection_frame, text="Server settings", style="Title.TLabel").grid(row=0, column=0)
+    Label(connection_frame, text="Port number:", style="settings.TLabel").grid(row=1, column=0)
+    port_num = Entry(connection_frame, width=10)
+    port_num.grid(row=1, column=1)
+    Button(connection_frame, text="Apply", command=placeholder, style="navbutton.TLabel").grid(row=1, column=2)
+    Label(connection_frame, text="Server status:", style="settings.TLabel").grid(row=2, column=0)
+    Label(connection_frame, text="Server is off", style="settings.TLabel").grid(row=2, column=1)
+    Label(connection_frame, text="Server IP:", style="settings.TLabel").grid(row=3, column=0)
+    Label(connection_frame, text="192.176.11.2", style="settings.TLabel").grid(row=3, column=1)
+    Label(connection_frame, text="Connected devices:", style="settings.TLabel").grid(row=4, column=0)
+    Label(connection_frame, text="0", style="settings.TLabel").grid(row=4, column=1)
+
+    #Securoty frame
+    security_frame = Frame(options_frame, style="navbar.TFrame")
+    security_frame.pack(padx=10, pady=10)
+    style.configure("settings.TLabel", background="#391D0D", foreground="white", font=(fnt, 15))
+    Label(security_frame, text="Server Security", style="Title.TLabel").grid(row=0, column=0)
+    Label(security_frame, text="Max num of devices:", style="settings.TLabel").grid(row=1, column=0)
+    port_num = Entry(security_frame, width=10)
+    port_num.grid(row=1, column=1)
+    Button(security_frame, text="Apply", command=placeholder, style="navbutton.TLabel").grid(row=1, column=2)
+    Button(security_frame, text="Account management", command=placeholder, style="navbutton.TLabel").grid(row=2, column=0)
+    Label(security_frame, text="Server IP:", style="settings.TLabel").grid(row=3, column=0)
+    Label(security_frame, text="192.176.11.2", style="settings.TLabel").grid(row=3, column=1)
+    Label(security_frame, text="Connected devices:", style="settings.TLabel").grid(row=4, column=0)
+    Label(security_frame, text="0", style="settings.TLabel").grid(row=4, column=1)
+
+    #Controlling the server
+    control_frame = Frame(server_back, style="Custom2.TFrame")
+    control_frame.grid(row=0, column=0, sticky='nsew')
+    style.configure("server_off_button.TLabel", background="#A5622F", foreground="white", font=(fnt, 20, "bold"), padding=(10, 10))  # Change the font of the text
+    style.map("server_off_button.TLabel",foreground=[('pressed', '#391D0D'), ('active', 'white')],background=[('pressed', '!disabled', '#FFE7D4'), ('active', '#E99A5D')])
+    style.configure("server_on_button.TLabel", background="#C43333", foreground="white", font=(fnt, 20, "bold"), padding=(10, 10))  # Change the font of the text
+    style.map("server_on_button.TLabel",foreground=[('pressed', 'black'), ('active', 'white')],background=[('pressed', '!disabled', '#F67171'), ('active', '#E80000')])
+    Button(control_frame, text="Start server", command=placeholder, style="server_on_button.TLabel").pack(expand=True)
 
 def client_menu():
     clear() #Clears the previous menu
@@ -103,8 +151,8 @@ def settings_menu():
 
     #Redirect to repo
     Repo_frame = Frame(description_frame, style="Custom2.TFrame")
-    img2 = ImageTk.PhotoImage(Image.open("GitHub2.png"))
-    image_git = Label(Repo_frame, image=img2)
+    img2 = ImageTk.PhotoImage(Image.open("GitHub3.png"))
+    image_git = Label(Repo_frame, image=img2, style="desc_repo.TLabel")
     image_git.image = img2
     image_git.grid(row=0, column=0)
     Button(Repo_frame, text="See GitHub repo", style="desc_repo.TLabel").grid(row=0, column=1)
