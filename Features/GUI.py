@@ -5,6 +5,7 @@ from tkinter.ttk import * #Theamed tkinter which makes the UI look ever so sligh
 import os
 from pathlib import Path
 import threading
+from PIL import Image, ImageTk
 
 os.chdir(Path(__file__).parent) #Changes cmd directory to the one that has the py file
 
@@ -37,7 +38,7 @@ def window():
     div.pack() #The frame keeps the layout decent
 
 def mainmenu():
-    global main_frame #To clear last menu when coming back
+    global main_frame, style #To clear last menu when coming back
     port_num = StringVar()
     DivisionFrame = Frame(wind)
     DivisionFrame.pack(fill='both', expand=True)
@@ -79,7 +80,100 @@ def easy_menu():
 
 def settings_menu():
     clear() #Clears the previous menu
-    Button(main_frame, text="settings menu test", command=placeholder, style="navbutton.TLabel").grid(row=0, column=4, padx=10, pady=10)
+    setting_back = Frame(main_frame, style="Custom2.TFrame")
+    setting_back.pack(fill='both', expand=True)
+    setting_back.grid_columnconfigure(0, weight=1)
+    setting_back.grid_columnconfigure(1, weight=1)
+    setting_back.grid_rowconfigure(0, weight=1)
+    options_frame = VerticalScrolledFrame(setting_back, style="Custom2.TFrame")
+    options_frame.grid(row=0, column=0, sticky='nsew')
+
+    #Description frame
+    style.configure("desc_title.TLabel", background="#6F3F29", foreground="white", font=(fnt, 25, "bold"))
+    style.configure("desc_version.TLabel", background="#6F3F29", foreground="white", font=(fnt, 10))
+    style.configure("desc_repo.TLabel", background="#6F3F29", foreground="white", font=(fnt, 15))
+    description_frame = Frame(setting_back, style="Custom2.TFrame")
+    description_frame.grid(row=0, column=1, sticky='nsew')
+    img = ImageTk.PhotoImage(Image.open("dog2.jpg"))
+    image_label = Label(description_frame, image=img)
+    image_label.image = img
+    image_label.pack()
+    Label(description_frame, text="The Ethel project", style="desc_title.TLabel").pack()
+    Label(description_frame, text="Version 1.0", style="desc_version.TLabel").pack()
+
+    #Redirect to repo
+    Repo_frame = Frame(description_frame, style="Custom2.TFrame")
+    img2 = ImageTk.PhotoImage(Image.open("GitHub2.png"))
+    image_git = Label(Repo_frame, image=img2)
+    image_git.image = img2
+    image_git.grid(row=0, column=0)
+    Button(Repo_frame, text="See GitHub repo", style="desc_repo.TLabel").grid(row=0, column=1)
+    Repo_frame.pack(padx=10, pady=10)
+
+    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
+    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
+    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
+    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
+    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
+    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
+    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
+    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
+    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
+    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
+    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
+    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
+    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
+    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
+    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
+    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
+    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
+    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
+    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
+    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
+
+class VerticalScrolledFrame(Frame):
+    """A pure Tkinter scrollable frame that actually works!
+    * Use the 'interior' attribute to place widgets inside the scrollable frame.
+    * Construct and pack/place/grid normally.
+    * This frame only allows vertical scrolling.
+    """
+    def __init__(self, parent, *args, **kw):
+        Frame.__init__(self, parent, *args, **kw)
+
+        # Create a canvas object and a vertical scrollbar for scrolling it.
+        vscrollbar = Scrollbar(self, orient=VERTICAL)
+        vscrollbar.pack(fill=Y, side=RIGHT, expand=FALSE)
+        canvas = Canvas(self, bd=0, highlightthickness=0, yscrollcommand=vscrollbar.set, bg="#6F3F29")
+        canvas.pack(side=LEFT, fill=BOTH, expand=TRUE)
+        vscrollbar.config(command=canvas.yview)
+
+        # Reset the view
+        canvas.xview_moveto(0)
+        canvas.yview_moveto(0)
+
+        # Create a frame inside the canvas which will be scrolled with it.
+        self.interior = interior = Frame(canvas, style="Custom2.TFrame")
+        interior_id = canvas.create_window(0, 0, window=interior,
+                                           anchor=NW)
+
+        # Track changes to the canvas and frame width and sync them,
+        # also updating the scrollbar.
+        def _configure_interior(event):
+            # Update the scrollbars to match the size of the inner frame.
+            size = (interior.winfo_reqwidth(), interior.winfo_reqheight())
+            canvas.config(scrollregion="0 0 %s %s" % size)
+            if interior.winfo_reqwidth() != canvas.winfo_width():
+                # Update the canvas's width to fit the inner frame.
+                canvas.config(width=interior.winfo_reqwidth())
+        interior.bind('<Configure>', _configure_interior)
+
+        def _configure_canvas(event):
+            if interior.winfo_reqwidth() != canvas.winfo_width():
+                # Update the inner frame's width to fill the canvas.
+                canvas.itemconfigure(interior_id, width=canvas.winfo_width())
+        canvas.bind('<Configure>', _configure_canvas)
+
+
 #------------------------------------<Menus End>-------------------------------------------------------
 #------------------------------------<General Start>-------------------------------------------------------
 #Used as a placeholder for menus I didn't add
