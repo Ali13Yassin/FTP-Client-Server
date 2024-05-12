@@ -28,7 +28,7 @@ def start():
 def window():
     global wind,div,fnt #Defines the main window, and div and font as global variables
     wind = Tk()
-    wind.iconbitmap("dog2.ico")  # Set the icon
+    wind.iconbitmap("imgs/dog2.ico")  # Set the icon
     centx = int((wind.winfo_screenwidth() - 800) / 2) #Gets coordinates of where to center the window on x-axis
     centy = int((wind.winfo_screenheight() - 500) / 2) #Gets coordinates of where to center the window on y-axis
     wind.geometry("800x500+{}+{}".format(centx, centy)) #Centers the window
@@ -120,8 +120,34 @@ def server_menu():
 
 def client_menu():
     clear() #Clears the previous menu
-    Button(main_frame, text="client menu test", command=placeholder, style="navbutton.TLabel").grid(row=0, column=4, padx=10, pady=10)
+    client_back = Frame(main_frame, style="Custom2.TFrame")
+    client_back.pack(fill='both', expand=True)
+    client_back.grid_columnconfigure(0, weight=1)
+    client_back.grid_columnconfigure(1, weight=1)
+    client_back.grid_rowconfigure(0, weight=1)
 
+    #Controlling the server
+    control_frame = Frame(client_back, style="Custom2.TFrame")
+    control_frame.grid(row=0, column=0, sticky='nsew')
+
+
+    addr_frame = Frame(control_frame, style="Custom2.TFrame")
+    addr_frame.grid(row=0, column=0)
+    uname_frame = Frame(control_frame, style="Custom2.TFrame")
+    uname_frame.grid(row=1, column=0)
+    pass_frame = Frame(control_frame, style="Custom2.TFrame")
+    pass_frame.grid(row=2, column=0)
+    Label(addr_frame, text="Server address:", style="settings.TLabel").grid(row=0, column=0)
+    Entry(addr_frame, width=20).grid(row=0, column=1)
+    Label(uname_frame, text="Username:", style="settings.TLabel").grid(row=0, column=0)
+    Entry(uname_frame, width=20).grid(row=0, column=1)
+    Label(pass_frame, text="Password:", style="settings.TLabel").grid(row=0, column=0)
+    Entry(pass_frame, width=20).grid(row=0, column=1)
+    style.configure("server_off_button.TLabel", background="#A5622F", foreground="white", font=(fnt, 20, "bold"), padding=(10, 10))  # Change the font of the text
+    style.map("server_off_button.TLabel",foreground=[('pressed', '#391D0D'), ('active', 'white')],background=[('pressed', '!disabled', '#FFE7D4'), ('active', '#E99A5D')])
+    Button(control_frame, text="Connect to server", command=placeholder, style="server_off_button.TLabel").grid(row=3, column=0, pady=10)
+
+    
 def easy_menu():
     clear() #Clears the previous menu
     Button(main_frame, text="easy menu test", command=placeholder, style="navbutton.TLabel").grid(row=0, column=4, padx=10, pady=10)
@@ -142,7 +168,7 @@ def settings_menu():
     style.configure("desc_repo.TLabel", background="#6F3F29", foreground="white", font=(fnt, 15))
     description_frame = Frame(setting_back, style="Custom2.TFrame")
     description_frame.grid(row=0, column=1, sticky='nsew')
-    img = ImageTk.PhotoImage(Image.open("dog2.jpg"))
+    img = ImageTk.PhotoImage(Image.open("imgs/dog2.jpg"))
     image_label = Label(description_frame, image=img)
     image_label.image = img
     image_label.pack()
@@ -151,7 +177,7 @@ def settings_menu():
 
     #Redirect to repo
     Repo_frame = Frame(description_frame, style="Custom2.TFrame")
-    img2 = ImageTk.PhotoImage(Image.open("GitHub3.png"))
+    img2 = ImageTk.PhotoImage(Image.open("imgs/GitHub2.png"))
     image_git = Label(Repo_frame, image=img2, style="desc_repo.TLabel")
     image_git.image = img2
     image_git.grid(row=0, column=0)
@@ -159,25 +185,7 @@ def settings_menu():
     Repo_frame.pack(padx=10, pady=10)
 
     Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
-    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
-    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
-    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
-    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
-    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
-    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
-    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
-    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
-    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
-    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
-    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
-    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
-    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
-    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
-    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
-    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
-    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
-    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
-    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
+    
 
 class VerticalScrolledFrame(Frame):
     """A pure Tkinter scrollable frame that actually works!
