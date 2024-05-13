@@ -7,6 +7,7 @@ from pathlib import Path
 import threading
 from PIL import Image, ImageTk
 import FTP_client as clienter
+import webbrowser
 
 os.chdir(Path(__file__).parent) #Changes cmd directory to the one that has the py file
 
@@ -250,7 +251,13 @@ def view_files_menu(action):
 
 def easy_menu():
     clear() #Clears the previous menu
-    Button(main_frame, text="easy menu test", command=placeholder, style="navbutton.TLabel").grid(row=0, column=4, padx=10, pady=10)
+    easy_back = Frame(main_frame, style="Custom2.TFrame")
+    easy_back.pack(fill='both', expand=True)
+    easy_back.grid_columnconfigure(0, weight=1)
+    easy_back.grid_columnconfigure(1, weight=1)
+    easy_back.grid_rowconfigure(0, weight=1)
+    options_frame = VerticalScrolledFrame(easy_back, style="Custom2.TFrame")
+    options_frame.grid(row=0, column=0, sticky='nsew')
 
 def settings_menu():
     clear() #Clears the previous menu
@@ -281,12 +288,38 @@ def settings_menu():
     image_git = Label(Repo_frame, image=img2, style="desc_repo.TLabel")
     image_git.image = img2
     image_git.grid(row=0, column=0)
-    import webbrowser
     Button(Repo_frame, text="See GitHub repo", style="desc_repo.TLabel",command=lambda: webbrowser.open("https://github.com/Ali13Yassin/The-Ethel-Project")).grid(row=0, column=1)
     Repo_frame.pack(padx=10, pady=10)
 
-    Button(options_frame.interior, text="settings options test", command=placeholder, style="navbutton.TLabel").pack(padx=10, pady=10)
+    #Settings options
+
+    def settings_visual_load():
+        #TODO: load the settings from the settings file then apply them to the checkboxes
+        pass
+    #This makes the settings save when any checkbox is pressed
+    def on_checkbutton_press():
+        #TODO: call the function that saves the settings
+        pass
     
+    
+    #All the settings are stored in these variables
+    checkbutton_logs = IntVar()
+
+    checkbutton_autosave = IntVar()
+    
+    style.configure('Settings_checkbox.TCheckbutton', background='#391D0D', indicatorbackground='#E99A5D', indicatorcolor='#391D0D', foreground='#A5622F', focuscolor='#E99A5D')
+    ftp_settings_frame = Frame(options_frame.interior, style="navbar.TFrame")
+    ftp_settings_frame.pack(padx=10, pady=10)
+    Label(ftp_settings_frame, text="FTP settings", style="Title.TLabel").grid(row=0, column=0)
+    Label(ftp_settings_frame, text="Server logs", style="settings.TLabel").grid(row=1, column=0)
+    Checkbutton(ftp_settings_frame, style="Settings_checkbox.TCheckbutton", command=lambda: on_checkbutton_press(), variable=checkbutton_logs).grid(row=1, column=1)
+    
+
+    easy_settings_frame = Frame(options_frame.interior, style="navbar.TFrame")
+    easy_settings_frame.pack(padx=10, pady=10)
+    Label(easy_settings_frame, text="Easy transfer settings", style="Title.TLabel").grid(row=0, column=0)
+    Label(easy_settings_frame, text="Auto Accept", style="settings.TLabel").grid(row=1, column=0)
+    Checkbutton(easy_settings_frame, style="Settings_checkbox.TCheckbutton", command=lambda: on_checkbutton_press(), variable=checkbutton_autosave).grid(row=1, column=1)
 
 class VerticalScrolledFrame(Frame):
     """A pure Tkinter scrollable frame that actually works!
