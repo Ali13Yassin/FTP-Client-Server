@@ -7,7 +7,11 @@ from pathlib import Path
 import threading
 from PIL import Image, ImageTk
 import FTP_client as clienter
+# import FTP_server as serverer
 import webbrowser
+from tkinter import messagebox
+from user_management import *
+import socket
 
 os.chdir(Path(__file__).parent) #Changes cmd directory to the one that has the py file
 
@@ -66,6 +70,17 @@ def mainmenu():
     Button(navbar, text="Settings", command=settings_menu, style="navbutton.TLabel").grid(row=0, column=4, padx=10, pady=10)
     server_menu() #Starts the server menu
 
+def get_ip_address():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        # doesn't even have to be reachable
+        s.connect(('10.255.255.255', 1))
+        IP = s.getsockname()[0]
+    except Exception:
+        IP = '127.0.0.1'
+    finally:
+        s.close()
+    return IP
 #------------------------------------<Initialization End>-------------------------------------------------------
 #------------------------------------<Menus Start>-------------------------------------------------------
 def server_menu():
@@ -83,42 +98,139 @@ def server_menu():
     #Connection frame
     connection_frame = Frame(options_frame, style="navbar.TFrame")
     connection_frame.pack(padx=10, pady=10)
+    global server_status
+    server_status = StringVar()
+    server_status.set("Server is off")
     style.configure("settings.TLabel", background="#391D0D", foreground="white", font=(fnt, 15))
     Label(connection_frame, text="Server settings", style="Title.TLabel").grid(row=0, column=0)
-    Label(connection_frame, text="Port number:", style="settings.TLabel").grid(row=1, column=0)
-    port_num = Entry(connection_frame, width=10)
-    port_num.grid(row=1, column=1)
-    Button(connection_frame, text="Apply", command=placeholder, style="navbutton.TLabel").grid(row=1, column=2)
     Label(connection_frame, text="Server status:", style="settings.TLabel").grid(row=2, column=0)
-    Label(connection_frame, text="Server is off", style="settings.TLabel").grid(row=2, column=1)
+    Label(connection_frame, text=server_status.get(), style="settings.TLabel").grid(row=2, column=1)
     Label(connection_frame, text="Server IP:", style="settings.TLabel").grid(row=3, column=0)
-    Label(connection_frame, text="192.176.11.2", style="settings.TLabel").grid(row=3, column=1)
-    Label(connection_frame, text="Connected devices:", style="settings.TLabel").grid(row=4, column=0)
-    Label(connection_frame, text="0", style="settings.TLabel").grid(row=4, column=1)
+    Label(connection_frame, text=get_ip_address(), style="settings.TLabel").grid(row=3, column=1)
 
     #Securoty frame
     security_frame = Frame(options_frame, style="navbar.TFrame")
     security_frame.pack(padx=10, pady=10)
     style.configure("settings.TLabel", background="#391D0D", foreground="white", font=(fnt, 15))
     Label(security_frame, text="Server Security", style="Title.TLabel").grid(row=0, column=0)
-    Label(security_frame, text="Max num of devices:", style="settings.TLabel").grid(row=1, column=0)
-    port_num = Entry(security_frame, width=10)
-    port_num.grid(row=1, column=1)
-    Button(security_frame, text="Apply", command=placeholder, style="navbutton.TLabel").grid(row=1, column=2)
-    Button(security_frame, text="Account management", command=placeholder, style="navbutton.TLabel").grid(row=2, column=0)
-    Label(security_frame, text="Server IP:", style="settings.TLabel").grid(row=3, column=0)
-    Label(security_frame, text="192.176.11.2", style="settings.TLabel").grid(row=3, column=1)
-    Label(security_frame, text="Connected devices:", style="settings.TLabel").grid(row=4, column=0)
-    Label(security_frame, text="0", style="settings.TLabel").grid(row=4, column=1)
-
+    Button(security_frame, text="Account management", command=user_management_menu, style="navbutton.TLabel").grid(row=2, column=0, padx=10, pady=10)
+    
     #Controlling the server
     control_frame = Frame(server_back, style="Custom2.TFrame")
     control_frame.grid(row=0, column=0, sticky='nsew')
     style.configure("server_off_button.TLabel", background="#A5622F", foreground="white", font=(fnt, 20, "bold"), padding=(10, 10))  # Change the font of the text
     style.map("server_off_button.TLabel",foreground=[('pressed', '#391D0D'), ('active', 'white')],background=[('pressed', '!disabled', '#FFE7D4'), ('active', '#E99A5D')])
-    style.configure("server_on_button.TLabel", background="#C43333", foreground="white", font=(fnt, 20, "bold"), padding=(10, 10))  # Change the font of the text
-    style.map("server_on_button.TLabel",foreground=[('pressed', 'black'), ('active', 'white')],background=[('pressed', '!disabled', '#F67171'), ('active', '#E80000')])
-    Button(control_frame, text="Start server", command=placeholder, style="server_off_button.TLabel").pack(expand=True)
+    Button(control_frame, text="Start server", command=start_new_cmd_with_python_script, style="server_off_button.TLabel").pack(expand=True)
+server_on = False
+
+
+def server_button_code():
+    global server_on
+    if server_on:
+        style.configure("server_off_button.TLabel", background="#A5622F", foreground="white", font=(fnt, 20, "bold"), padding=(10, 10))  # Change the font of the text
+        style.map("server_off_button.TLabel",foreground=[('pressed', '#391D0D'), ('active', 'white')],background=[('pressed', '!disabled', '#FFE7D4'), ('active', '#E99A5D')])
+        # server_stopper()
+        server_on = False
+    else:
+        style.configure("server_on_button.TLabel", background="#C43333", foreground="white", font=(fnt, 20, "bold"), padding=(10, 10))  # Change the font of the text
+        style.map("server_on_button.TLabel",foreground=[('pressed', 'black'), ('active', 'white')],background=[('pressed', '!disabled', '#F67171'), ('active', '#E80000')])
+        start_new_cmd_with_python_script()
+        server_on = True
+
+def user_management_menu():
+    new_window = Toplevel(wind)
+    new_window.title("Server files")
+    back_frame = Frame(new_window, style="navbar.TFrame")
+    back_frame.pack(fill='both', expand=True)
+    # Create a Treeview widget
+    tree = Treeview(back_frame)
+
+    # Define columns
+    tree["columns"] = ("Name", "Password")
+
+    # Format columns
+    tree.column("#0", width=0, stretch=NO)
+    tree.column("Name", anchor=W, width=200)
+    tree.column("Password", anchor=W, width=200)
+
+    # Create headings
+    tree.heading("#0", text="", anchor=W)
+    tree.heading("Name", text="Name", anchor=W)
+    tree.heading("Password", text="Password", anchor=W)
+
+    # Add data to the treeview
+    allusers = jsonR("users.json")
+    for key in allusers:
+        tree.insert("", "end", text=key, values=(key, allusers[key]))
+
+    # Display the treeview
+    tree.pack(fill=BOTH, expand=True)
+    tree = Treeview(new_window, columns=("Username", "Password"), selectmode='browse')
+    def new_user():
+        new_user_frame = Frame(back_frame, style="navbar.TFrame")
+        new_user_frame.pack(pady=5)
+        new_username = StringVar()
+        new_password = StringVar()
+        def confirm():
+            if new_username.get() not in allusers:
+                allusers[new_username.get()] = new_password.get()
+                jsonW("users.json", allusers)
+                os.makedirs("myusers/{}".format(new_username.get()), exist_ok=True)
+                new_window.destroy()
+            else:
+                messagebox.showerror("Error", "Username already exists")
+        Options_frame.destroy()
+        Label(new_user_frame, text="Username:", style="settings.TLabel").grid(row=0, column=0)
+        Entry(new_user_frame, textvariable=new_username).grid(row=0, column=1)
+        Label(new_user_frame, text="Password:", style="settings.TLabel").grid(row=1, column=0)
+        Entry(new_user_frame, textvariable=new_password).grid(row=1, column=1)
+        Button(new_user_frame, text="Confirm", command=confirm, style="navbutton.TLabel").grid(row=2, column=1)
+
+    def delete_user():
+        selected_items = tree.selection()
+        response = messagebox.askyesno("Warning", "Are you sure you want to delete the selected users?")
+        if response:
+            print(selected_items)
+            for item in selected_items:
+                del allusers[tree.item(item)["values"][0]]
+                print(tree.item(item)["values"][0])
+                jsonW("users.json", allusers)
+                os.rmdir("myusers/{}".format(tree.item(item)["values"][0]))
+                new_window.destroy()
+
+    def edit_user():
+        edit_user_frame = Frame(back_frame, style="navbar.TFrame")
+        edit_user_frame.pack(pady=5)
+        new_username = StringVar()
+        new_password = StringVar()
+        def confirm():
+            if new_username.get() not in allusers:
+                allusers[new_username.get()] = new_password.get()
+                jsonW("users.json", allusers)
+                os.makedirs("myusers/{}".format(new_username.get()), exist_ok=True)
+                new_window.destroy()
+            else:
+                messagebox.showerror("Error", "Username already exists")
+        Options_frame.destroy()
+        Label(edit_user_frame, text="Username:", style="settings.TLabel").grid(row=0, column=0)
+        Entry(edit_user_frame, textvariable=new_username).grid(row=0, column=1)
+        Label(edit_user_frame, text="Password:", style="settings.TLabel").grid(row=1, column=0)
+        Entry(edit_user_frame, textvariable=new_password).grid(row=1, column=1)
+        Button(edit_user_frame, text="Confirm", command=confirm, style="navbutton.TLabel").grid(row=2, column=1)
+
+    Options_frame = Frame(back_frame, style="navbar.TFrame")
+    Options_frame.pack(pady=5)
+    Button(Options_frame, text="Add user", command=new_user, style="navbutton.TLabel").grid(row=0, column=0, pady=5, padx=5)
+    Button(Options_frame, text="delete user", command=delete_user, style="navbutton.TLabel").grid(row=0, column=1, pady=5, padx=5)
+    Button(Options_frame, text="Edit user", command=edit_user, style="navbutton.TLabel").grid(row=0, column=2, pady=5, padx=5)
+
+import subprocess
+
+def start_new_cmd_with_python_script():
+    # Start a new command prompt window running a Python script
+    server_status.set("Server is on")
+    subprocess.Popen(["cmd", "/c", "start", "cmd", "/k", "python", "FTP_server.py"])
+
 
 def client_connect_menu():
     clear() #Clears the previous menu
@@ -157,7 +269,7 @@ def client_connect_menu():
     style.map("server_off_button.TLabel",foreground=[('pressed', '#391D0D'), ('active', 'white')],background=[('pressed', '!disabled', '#FFE7D4'), ('active', '#E99A5D')])
     Button(control_frame, text="Connect to server", command=lambda: clienter_start(address.get(),username.get(),password.get()), style="server_off_button.TLabel").grid(row=3, column=0, pady=10)
 
-def client_connected_menu():
+def client_connected_menu(addr):
     clear() #Clears the previous menu
     client_back = Frame(main_frame, style="Custom2.TFrame")
     client_back.pack(fill='both', expand=True)
@@ -169,7 +281,7 @@ def client_connected_menu():
     # info_frame.pack_propagate(0)
     Label(info_frame, text="Connection information", style="Title.TLabel").grid(row=0, column=0)
     Label(info_frame, text="Address: ", style="settings.TLabel").grid(row=1, column=0)
-    adress_info = Label(info_frame, text="ip adress", style="settings.TLabel")
+    adress_info = Label(info_frame, text=addr, style="settings.TLabel")
     adress_info.grid(row=1, column=1)
     Label(info_frame, text="Connection status: ", style="settings.TLabel").grid(row=2, column=0)
     connection_info = Label(info_frame, text="Connected", style="settings.TLabel")
@@ -184,7 +296,7 @@ def client_connected_menu():
     
     style.configure("server_on_button.TLabel", background="#C43333", foreground="white", font=(fnt, 15))  # Change the font of the text
     style.map("server_on_button.TLabel",foreground=[('pressed', 'black'), ('active', 'white')],background=[('pressed', '!disabled', '#F67171'), ('active', '#E80000')])
-    Button(action_frame, text="Disconnect", command=lambda: clienter.close_connection(), style="server_on_button.TLabel").grid(row=4, column=0, padx=10, pady=10)
+    Button(action_frame, text="Disconnect", command=lambda: (clienter.close_connection(), client_connect_menu()), style="server_on_button.TLabel").grid(row=4, column=0, padx=10, pady=10)
 
 def view_files_menu(action):
     new_window = Toplevel(wind)
@@ -210,10 +322,15 @@ def view_files_menu(action):
     tree.heading("Type", text="Type", anchor=W)
 
     # Add data to the treeview
-    for i in clienter.list_files():
-        split = i.split(".")
-        split = split[len(split)-1]
-        tree.insert("", "end", text=i, values=(i, "10 KB", split))
+    lines = clienter.list_files()
+    for i in range(len(lines)):
+        name = lines[i].split()[-1]
+        size = lines[i].split()[-5]
+        if lines[i].split()[0] == "drwxrwxrwx":
+            Filetype = "Directory"
+        else:
+            Filetype = "File"
+        tree.insert("", "end", text=i, values=(name, size, Filetype))
 
     # Display the treeview
     tree.pack(fill=BOTH, expand=True)
@@ -248,6 +365,13 @@ def view_files_menu(action):
             selected_items = tree.selection()
         Button(back_frame, text="Upload", command=upload, style="navbutton.TLabel").pack(pady=5)
         Button(back_frame, text="Create new folder", command=new_fold, style="navbutton.TLabel").pack(pady=5)
+    elif action == 0:
+        def delete():
+            selected_items = tree.selection()
+            if messagebox.askyesno("Warning", "Are you sure you want to delete the selected files?"):
+                for item in selected_items:
+                    clienter.delete_file(tree.item(item)["values"][0])
+        Button(back_frame, text="Delete selected items", command=delete, style="navbutton.TLabel").pack(pady=5)
 
 def easy_menu():
     clear() #Clears the previous menu
@@ -369,7 +493,7 @@ class VerticalScrolledFrame(Frame):
 def clienter_start(adr,usr,pwd):
     clienter.connect_to_server(adr,usr,pwd)
     if clienter.list_files() != []:
-        client_connected_menu()
+        client_connected_menu(adr)
     #TODO: use threading to add a loop that checks if the connection is still active
     else:
         pass

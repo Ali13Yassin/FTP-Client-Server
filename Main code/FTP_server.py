@@ -1,43 +1,20 @@
-from pyftpdlib.handlers import FTPHandler
-from pyftpdlib.servers import FTPServer
-from pyftpdlib.authorizers import DummyAuthorizer
-import os
+from twisted.cred.checkers import AllowAnonymousAccess, InMemoryUsernamePasswordDatabaseDontUse
+from twisted.cred.portal import Portal
+from twisted.internet import reactor, defer
+from twisted.protocols.ftp import FTP, FTPFactory, FTPRealm
+from user_management import *
 
-class CustomFTPHandler(FTPHandler):
-    def on_connect(self):
-        print(f"{self.remote_ip}:{self.remote_port} connected")
+def start_server():
+    checker = InMemoryUsernamePasswordDatabaseDontUse()
 
-    def on_disconnect(self):
-        print(f"{self.remote_ip}:{self.remote_port} disconnected")
+    ftp_users = jsonR("users.json")
+    for key in ftp_users:
+        checker.addUser(key, ftp_users[key])
 
-    def on_login(self, username):
-        print(f"{username} logged in")
+    portal = Portal(FTPRealm("./public", "./myusers"), [AllowAnonymousAccess(), checker])
 
-    def on_logout(self, username):
-        print(f"{username} logged out")
+    factory = FTPFactory(portal)
 
-    def on_file_sent(self, file):
-        print(f"sent {file}")
-
-    def on_file_received(self, file):
-        print(f"received {file}")
-
-    def on_incomplete_file_sent(self, file):
-        print(f"sent incomplete {file}")
-
-    def on_incomplete_file_received(self, file):
-        print(f"received incomplete {file}")
-
-def main():
-    handler = CustomFTPHandler
-    handler.passive_ports = range(60000, 65535)
-    authorizer = DummyAuthorizer()
-    authorizer.add_user('ali', 'ali', "./imgs", perm='elradfmwMT')
-    authorizer.add_anonymous(os.getcwd())
-    server = FTPServer(("localhost", 2121), handler)
-    server.max_cons = 256
-    server.max_cons_per_ip = 5
-    server.serve_forever()
-
-if __name__ == '__main__':
-    main()
+    reactor.listenTCP(21, factory)
+    reactor.run()
+start_server()
