@@ -14,6 +14,7 @@ from user_management import *
 import socket
 
 os.chdir(Path(__file__).parent) #Changes cmd directory to the one that has the py file
+root_location = Path(__file__).parent #The location of the main file
 
 #Checks if the required python files exist
 # if os.path.exists("Corefunctions.py") and os.path.exists("Exportfunctions.py"):
@@ -38,7 +39,7 @@ def window():
     centx = int((wind.winfo_screenwidth() - 800) / 2) #Gets coordinates of where to center the window on x-axis
     centy = int((wind.winfo_screenheight() - 500) / 2) #Gets coordinates of where to center the window on y-axis
     wind.geometry("800x500+{}+{}".format(centx, centy)) #Centers the window
-    wind.title("The Ethel project")
+    wind.title("FTP project")
     fnt = "Manrope" #To be able to change font through one change
     div = Frame(wind) #Funny name from html that's not gonna cause issues at all lolol
     div.pack() #The frame keeps the layout decent
@@ -62,12 +63,12 @@ def mainmenu():
     navbar.grid(row=0, column=0, sticky="nsew")
     main_frame = Frame(DivisionFrame, style="Custom2.TFrame")
     main_frame.grid(row=1, column=0, sticky="nsew")
-    Label(navbar, text="The Ethel Project", style="Title.TLabel").grid(row=0, column=0)
+    Label(navbar, text="FTP Project", style="Title.TLabel").grid(row=0, column=0)
     Entry(main_frame, textvariable=port_num).grid(row=0, column=0, padx=10, pady=10)
     Button(navbar, text="FTP server", command=server_menu, style="navbutton.TLabel").grid(row=0, column=1, padx=10, pady=10)
     Button(navbar, text="FTP client", command=client_connect_menu, style="navbutton.TLabel").grid(row=0, column=2, padx=10, pady=10)
-    Button(navbar, text="Easy transfer", command=easy_menu, style="navbutton.TLabel").grid(row=0, column=3, padx=10, pady=10)
-    Button(navbar, text="Settings", command=settings_menu, style="navbutton.TLabel").grid(row=0, column=4, padx=10, pady=10)
+    # Button(navbar, text="Easy transfer", command=easy_menu, style="navbutton.TLabel").grid(row=0, column=3, padx=10, pady=10)
+    Button(navbar, text="About", command=settings_menu, style="navbutton.TLabel").grid(row=0, column=4, padx=10, pady=10)
     server_menu() #Starts the server menu
 
 def get_ip_address():
@@ -143,29 +144,29 @@ def user_management_menu():
     back_frame = Frame(new_window, style="navbar.TFrame")
     back_frame.pack(fill='both', expand=True)
     # Create a Treeview widget
-    tree = Treeview(back_frame)
+    user_tree = Treeview(back_frame)
 
     # Define columns
-    tree["columns"] = ("Name", "Password")
+    user_tree["columns"] = ("Name", "Password")
 
     # Format columns
-    tree.column("#0", width=0, stretch=NO)
-    tree.column("Name", anchor=W, width=200)
-    tree.column("Password", anchor=W, width=200)
+    user_tree.column("#0", width=0, stretch=NO)
+    user_tree.column("Name", anchor=W, width=200)
+    user_tree.column("Password", anchor=W, width=200)
 
     # Create headings
-    tree.heading("#0", text="", anchor=W)
-    tree.heading("Name", text="Name", anchor=W)
-    tree.heading("Password", text="Password", anchor=W)
+    user_tree.heading("#0", text="", anchor=W)
+    user_tree.heading("Name", text="Name", anchor=W)
+    user_tree.heading("Password", text="Password", anchor=W)
 
     # Add data to the treeview
     allusers = jsonR("users.json")
     for key in allusers:
-        tree.insert("", "end", text=key, values=(key, allusers[key]))
+        user_tree.insert("", "end", text=key, values=(key, allusers[key]))
 
     # Display the treeview
-    tree.pack(fill=BOTH, expand=True)
-    tree = Treeview(new_window, columns=("Username", "Password"), selectmode='browse')
+    user_tree.pack(fill=BOTH, expand=True)
+    user_tree = Treeview(new_window, columns=("Username", "Password"), selectmode='browse')
     def new_user():
         new_user_frame = Frame(back_frame, style="navbar.TFrame")
         new_user_frame.pack(pady=5)
@@ -187,15 +188,16 @@ def user_management_menu():
         Button(new_user_frame, text="Confirm", command=confirm, style="navbutton.TLabel").grid(row=2, column=1)
 
     def delete_user():
-        selected_items = tree.selection()
         response = messagebox.askyesno("Warning", "Are you sure you want to delete the selected users?")
         if response:
+            user_tree.update()
+            selected_items = user_tree.selection()
             print(selected_items)
             for item in selected_items:
-                del allusers[tree.item(item)["values"][0]]
-                print(tree.item(item)["values"][0])
+                del allusers[user_tree.item(item)["values"][0]]
+                print(user_tree.item(item)["values"][0])
                 jsonW("users.json", allusers)
-                os.rmdir("myusers/{}".format(tree.item(item)["values"][0]))
+                os.rmdir("myusers/{}".format(user_tree.item(item)["values"][0]))
                 new_window.destroy()
 
     def edit_user():
@@ -345,15 +347,18 @@ def view_files_menu(action):
         tree = Treeview(new_window, columns=("File Name", "Size", "Type"), selectmode='browse')
         def upload():
             from tkinter.filedialog import askopenfilename
-            filename = askopenfilename()
-            if filename:
-                print(filename)
-                clienter.upload_file(filename)
+            file_path = askopenfilename()
+            if file_path:
+                selected_items = tree.selection()
+                if selected_items != ():
+                    clienter.change_directory(tree.item(selected_items[0])["values"][0])
+                clienter.upload_file(file_path)
                 new_window.destroy()
         def new_fold():
             new_fold_name = StringVar()
             Entry_frame = Frame(back_frame)
             Entry_frame.pack(pady=5)
+            selected_items = tree.selection()
             def confirm():
                 if selected_items != ():
                     clienter.change_directory(tree.item(selected_items[0])["values"][0])
@@ -371,6 +376,7 @@ def view_files_menu(action):
             if messagebox.askyesno("Warning", "Are you sure you want to delete the selected files?"):
                 for item in selected_items:
                     clienter.delete_file(tree.item(item)["values"][0])
+                new_window.destroy()
         Button(back_frame, text="Delete selected items", command=delete, style="navbutton.TLabel").pack(pady=5)
 
 def easy_menu():
@@ -399,11 +405,11 @@ def settings_menu():
     style.configure("desc_repo.TLabel", background="#6F3F29", foreground="white", font=(fnt, 15))
     description_frame = Frame(setting_back, style="Custom2.TFrame")
     description_frame.grid(row=0, column=1, sticky='nsew')
-    img = ImageTk.PhotoImage(Image.open("imgs/dog2.jpg"))
-    image_label = Label(description_frame, image=img)
-    image_label.image = img
-    image_label.pack()
-    Label(description_frame, text="The Ethel project", style="desc_title.TLabel").pack()
+    # img = ImageTk.PhotoImage(Image.open("imgs/dog2.jpg"))
+    # image_label = Label(description_frame, image=img)
+    # image_label.image = img
+    # image_label.pack()
+    Label(description_frame, text="FTP project", style="desc_title.TLabel").pack()
     Label(description_frame, text="Version 1.0", style="desc_version.TLabel").pack()
 
     #Redirect to repo

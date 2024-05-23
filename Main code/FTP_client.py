@@ -38,7 +38,7 @@ def download_file(file):
 # Upload a file to the FTP server
 def upload_file(file):
     with open(file, "rb") as f:
-        ftp_server.storbinary("STOR " + file, f)
+        ftp_server.storbinary("STOR " + file.split("/")[-1], f)
 
 def delete_file(file):
     ftp_server.delete(file)
