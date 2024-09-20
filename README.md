@@ -17,9 +17,6 @@ This is a first year college project where we were tasked with making an FTP ser
 ![Credentials Screenshot](/Screenshots/Screenshot2.png)
 
 ![Client Screenshot](/Screenshots/Screenshot3.png)
-# FTP project
-
-This is a first year college project where we were tasked with making an FTP server and client application using python
 
 ## Installation
 
@@ -30,7 +27,7 @@ Then launch GUI.py
     
 ## Used libraries
 
-**GUI:** Python, Tkinter, TTkinter, OS, Pathlib, Threading, Pillow
+**GUI:** Tkinter, TTkinter, OS, Pathlib, Threading, Pillow
 
 **Client:** FTPlib, webbrowser
 
